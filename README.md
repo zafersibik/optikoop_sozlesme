@@ -1,0 +1,1 @@
+# optikoop_sozlesme
