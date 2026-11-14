@@ -2266,7 +2266,7 @@ function buildBlocks(m, N) {
   const B = []; const add = (html, o) => B.push(Object.assign({ html }, o || {}));
   const row = (l, v, raw) => add(`<div class="blk-row"><div class="l">${esc(l)}</div><div class="c">:</div><div class="v">${raw ? v : esc(v)}</div></div>`);
   const unvanB = '<b>' + esc(m.unvan) + '</b>';
-  const signHtml = `<div class="blk-sign"><div><b>SATICI</b>Merve Gözlük Camı San. ve Tic. A.Ş.</div><div><b>ALICI</b>${esc(m.unvan)}</div></div>`;
+  const signHtml = `<div class="blk-sign"><div><b>SATICI</b>Merve Gözlük Camı San. ve Tic. A.Ş.</div><div><b>KOOPERATİF</b>S.S. OPTİKÇİLER OPTİKOOP<br>TEMİN TEVZİ KOOPERATİFİ</div><div><b>ALICI</b>${esc(m.unvan)}</div></div>`;
   add(`<div class="blk-logo"><div class="lgrow"><img class="lg-m" src="${LOGO}" alt="Merve Gözlük Camı"><img class="lg-o" src="${LOGO_OPK}" alt="Optikoop"></div><div class="blk-title">${esc(sn.baslik)}</div></div>`);
   row('Sözleşme Tarihi', fmtDate(m.tarih));
   row('Satıcı Ünvanı', sn.satici);
