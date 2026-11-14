@@ -654,7 +654,7 @@
         <button class="btn" id="pvSavePrint">Kaydet ve Yazdır (3 Nüsha)</button>
       </div>
       <div class="pv-bar">
-        <button class="btn" id="pvGonder2">Kaydet ve Gönder</button>
+        <button class="btn" id="pvGonder2">Kaydet ve Gönder (3 Nüsha)</button>
       </div>
       <div class="pv-bar" id="senetBar" style="display:none">
         <button class="btn secondary" id="pvSenet">Senetleri Yazdır</button>
@@ -665,7 +665,7 @@
       <details class="diger" id="pvDiger">
         <summary>Diğer seçenekler</summary>
         <div class="pv-bar"><button class="btn secondary" id="pvSave">Yalnızca Kaydet</button></div>
-        <div class="pv-bar"><button class="btn secondary" id="pvGonderAS">Kaydet ve Gönder (3 Nüsha)</button></div>
+        <div class="pv-bar"><button class="btn secondary" id="pvGonderAS">Kaydet ve Gönder (Tek Nüsha)</button></div>
         <div class="pv-bar"><button class="btn secondary" id="pvPdf1">PDF İndir</button><button class="btn secondary" id="pvPdfAS">PDF İndir (3 Nüsha)</button></div>
       </details>
       <div class="muted">"Gönder" PDF'i hazırlar ve telefonun paylaşma menüsünü açar (WhatsApp, e-posta…). "Yazdır" tarayıcının yazdırma ekranını açar. "PDF İndir" PDF'i cihaza kaydeder.</div>
@@ -2398,8 +2398,8 @@ $('pvBack').addEventListener('click', () => { showPanel(prevPanel); const y = pv
 function pvEtiket(k) {
   $('pvSave').style.display = k ? 'none' : '';
   $('pvSavePrint').textContent = k ? 'Yazdır (3 Nüsha)' : 'Kaydet ve Yazdır (3 Nüsha)';
-  $('pvGonder2').textContent = k ? 'Gönder' : 'Kaydet ve Gönder';
-  $('pvGonderAS').textContent = k ? 'Gönder (3 Nüsha)' : 'Kaydet ve Gönder (3 Nüsha)';
+  $('pvGonder2').textContent = k ? 'Gönder (3 Nüsha)' : 'Kaydet ve Gönder (3 Nüsha)';
+  $('pvGonderAS').textContent = k ? 'Gönder (Tek Nüsha)' : 'Kaydet ve Gönder (Tek Nüsha)';
 }
 function saveModel() {
   if (!curModel) return false;
@@ -2458,7 +2458,7 @@ async function pdfLibs() {
 }
 async function uretPdf(m, copies, onProgress, opts) {
   await pdfLibs();
-  const lay = layoutModel(m, PDF_PAGE_H), hafif = !!(opts && opts.hafif), olcek = hafif ? 1.5 : 2, kalite = hafif ? 0.8 : 0.92;
+  const lay = layoutModel(m, PDF_PAGE_H), hafif = !!(opts && opts.hafif), olcek = 3, kalite = 0.95; /* en yüksek çözünürlük; Gönder'de ayrı düşük kalite modu yok */
   const tags = Array(copies === 3 ? 3 : 1).fill(''); /* üç nüsha: etiketsiz, birebir aynı */
   const jobs = lay.pages.map((p, i) => pageHtml(p, i, lay.N, '')); /* her sayfa bir kez çizilir; Asıl ve Suret'te aynı görüntü kullanılır, etiket PDF'e yazı olarak eklenir (dosya boyutu tek nüsha kadar kalır) */
   const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
@@ -2837,9 +2837,9 @@ async function uretSenetPdf(m, tur, onProgress) {
       onProgress(i + 1, sayfalar.length);
       stage.innerHTML = sayfalar[i].outerHTML;
       await new Promise(r => setTimeout(r, 30));
-      const canvas = await window.html2canvas(stage.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false, windowWidth: 1000 });
+      const canvas = await window.html2canvas(stage.firstElementChild, { scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false, windowWidth: 1000 });
       if (i > 0) pdf.addPage('a4', 'portrait');
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       canvas.width = canvas.height = 0;
     }
   } finally { stage.innerHTML = ''; }
@@ -2884,8 +2884,8 @@ async function pdfGonder(copies, onceKayitli, sadeceSenet) {
     toast('PDF oluşturulamadı: ' + (e && e.message ? e.message : 'bilinmeyen hata'));
   } finally { btns.forEach((b, i) => { b.disabled = false; b.textContent = old[i]; }); pdfBusy = false; }
 }
-$('pvGonder2').addEventListener('click', () => pdfGonder(1));
-$('pvGonderAS').addEventListener('click', () => pdfGonder(3));
+$('pvGonder2').addEventListener('click', () => pdfGonder(3));
+$('pvGonderAS').addEventListener('click', () => pdfGonder(1));
 $('pvSenetG').addEventListener('click', () => pdfGonder(2, false, 'odt'));
 $('pvSenetCbG').addEventListener('click', () => pdfGonder(2, false, 'cb'));
 
@@ -3738,7 +3738,7 @@ $('kayitList').addEventListener('click', e => {
   const o = e.target.closest('[data-open]'), d = e.target.closest('[data-del]'), gd = e.target.closest('[data-gonder]'), du = e.target.closest('[data-duz]'), ip = e.target.closest('[data-iptal]'), ig = e.target.closest('[data-iptalgeri]');
   if (du || ip || ig || d) kayitMenuKapat();
   if (du) { kayitDuzenle(du.dataset.duz); return; }
-  if (gd) { const m = lsGet(LS_KAYIT, []).find(x => x.id === gd.dataset.gonder); if (m) { showPreview(m, 'kayit', true); pdfGonder(1, true); } return; }
+  if (gd) { const m = lsGet(LS_KAYIT, []).find(x => x.id === gd.dataset.gonder); if (m) { showPreview(m, 'kayit', true); pdfGonder(3, true); } return; }
   if (o) { const m = lsGet(LS_KAYIT, []).find(x => x.id === o.dataset.open); if (m) showPreview(m, 'kayit', true); return; }
   if (ip) { const m = lsGet(LS_KAYIT, []).find(x => x.id === ip.dataset.iptal); if (m) askModal({ title: 'Sözleşme iptal edilsin mi?', text: (m.no ? m.no + ' · ' : '') + m.unvan + ' iptal edilecek. Kayıt listede kalır, Excel\'de "İptal" görünür ve iptal bilgisi merkeze gider.', left: { label: 'Vazgeç' }, right: { label: 'İptal Et', danger: true, fn: () => kayitIptal(m.id) } }); return; }
   if (ig) { kayitIptalGeriAl(ig.dataset.iptalgeri); return; }
