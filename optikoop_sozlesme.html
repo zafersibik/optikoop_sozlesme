@@ -651,7 +651,7 @@
         <button class="btn secondary" id="pvBack">Geri Dön</button>
       </div>
       <div class="pv-bar">
-        <button class="btn" id="pvSavePrint">Kaydet ve Yazdır (Asıl + Suret)</button>
+        <button class="btn" id="pvSavePrint">Kaydet ve Yazdır (3 Nüsha)</button>
       </div>
       <div class="pv-bar">
         <button class="btn" id="pvGonder2">Kaydet ve Gönder</button>
@@ -665,9 +665,8 @@
       <details class="diger" id="pvDiger">
         <summary>Diğer seçenekler</summary>
         <div class="pv-bar"><button class="btn secondary" id="pvSave">Yalnızca Kaydet</button></div>
-        <div class="pv-bar"><button class="btn secondary" id="pvPrint1">Tek Nüsha Yazdır</button></div>
-        <div class="pv-bar"><button class="btn secondary" id="pvGonderAS">Kaydet ve Gönder (Asıl + Suret)</button></div>
-        <div class="pv-bar"><button class="btn secondary" id="pvPdf1">PDF İndir</button><button class="btn secondary" id="pvPdfAS">PDF İndir (Asıl + Suret)</button></div>
+        <div class="pv-bar"><button class="btn secondary" id="pvGonderAS">Kaydet ve Gönder (3 Nüsha)</button></div>
+        <div class="pv-bar"><button class="btn secondary" id="pvPdf1">PDF İndir</button><button class="btn secondary" id="pvPdfAS">PDF İndir (3 Nüsha)</button></div>
       </details>
       <div class="muted">"Gönder" PDF'i hazırlar ve telefonun paylaşma menüsünü açar (WhatsApp, e-posta…). "Yazdır" tarayıcının yazdırma ekranını açar. "PDF İndir" PDF'i cihaza kaydeder.</div>
     </div>
@@ -2294,7 +2293,7 @@ function buildBlocks(m, N) {
     add(`<div class="blk-h">KAMPANYAYA ÖZEL HÜKÜMLER</div>`, { keep: true });
     m.sartlar.forEach((t, i) => add(numM(sn.maddeler.length + i + 1, t)));
   }
-  add(`<div class="blk-m" style="padding-top:4mm">İşbu ${N} sayfa, ${sn.maddeler.length + m.sartlar.length} özel maddeden ibaret 1 asıl ve 1 suret olarak hazırlanan sözleşme ${fmtDate(m.tarih)} tarihinde İstanbul-Beylikdüzü’nde tanzim ve imza edilmiştir.</div>`, { keep: true });
+  add(`<div class="blk-m" style="padding-top:4mm">İşbu ${N} sayfa, ${sn.maddeler.length + m.sartlar.length} özel maddeden ibaret 3 nüsha olarak hazırlanan ve her biri asıl hükmünde olan sözleşme ${fmtDate(m.tarih)} tarihinde İstanbul-Beylikdüzü’nde tanzim ve imza edilmiştir.</div>`, { keep: true });
   add(signHtml);
   if (m.annex && /^magna[12]$/.test(m.annex)) {
     const pk = m.annex.slice(5);
@@ -2398,9 +2397,9 @@ window.addEventListener('resize', fitPreview);
 $('pvBack').addEventListener('click', () => { showPanel(prevPanel); const y = pvY; requestAnimationFrame(() => window.scrollTo(0, y)); });
 function pvEtiket(k) {
   $('pvSave').style.display = k ? 'none' : '';
-  $('pvSavePrint').textContent = k ? 'Yazdır (Asıl + Suret)' : 'Kaydet ve Yazdır (Asıl + Suret)';
+  $('pvSavePrint').textContent = k ? 'Yazdır (3 Nüsha)' : 'Kaydet ve Yazdır (3 Nüsha)';
   $('pvGonder2').textContent = k ? 'Gönder' : 'Kaydet ve Gönder';
-  $('pvGonderAS').textContent = k ? 'Gönder (Asıl + Suret)' : 'Kaydet ve Gönder (Asıl + Suret)';
+  $('pvGonderAS').textContent = k ? 'Gönder (3 Nüsha)' : 'Kaydet ve Gönder (3 Nüsha)';
 }
 function saveModel() {
   if (!curModel) return false;
@@ -2432,13 +2431,13 @@ $('pvSave').addEventListener('click', () => {
   if (saveModel()) toast('Sözleşme kaydedildi.'); else if (!kimlikRed) toast('Kaydedilemedi: tarayıcı hafızası dolu olabilir.');
 });
 $('pvSavePrint').addEventListener('click', () => {
-  if (fromSaved) { yazdir(2); return; }
-  if (saveModel()) { toast('Sözleşme kaydedildi.'); yazdir(2); }
-  else if (!kimlikRed && confirm('Sözleşme kaydedilemedi (tarayıcı hafızası dolu olabilir). Yine de yazdırılsın mı?')) yazdir(2);
+  if (fromSaved) { yazdir(3); return; }
+  if (saveModel()) { toast('Sözleşme kaydedildi.'); yazdir(3); }
+  else if (!kimlikRed && confirm('Sözleşme kaydedilemedi (tarayıcı hafızası dolu olabilir). Yine de yazdırılsın mı?')) yazdir(3);
 });
 function yazdir(copies) {
   if (!curModel || !curLayout) return;
-  const tags = copies === 2 ? ['ASIL', 'SURET'] : [''];
+  const tags = Array(copies === 3 ? 3 : 1).fill(''); /* üç nüsha: etiketsiz, birebir aynı */
   $('printArea').innerHTML = tags.map(t => curLayout.pages.map((p, i) => pageHtml(p, i, curLayout.N, t)).join('')).join('');
   window.print();
 }
@@ -2460,7 +2459,7 @@ async function pdfLibs() {
 async function uretPdf(m, copies, onProgress, opts) {
   await pdfLibs();
   const lay = layoutModel(m, PDF_PAGE_H), hafif = !!(opts && opts.hafif), olcek = hafif ? 1.5 : 2, kalite = hafif ? 0.8 : 0.92;
-  const tags = copies === 2 ? ['ASIL', 'SURET'] : [''];
+  const tags = Array(copies === 3 ? 3 : 1).fill(''); /* üç nüsha: etiketsiz, birebir aynı */
   const jobs = lay.pages.map((p, i) => pageHtml(p, i, lay.N, '')); /* her sayfa bir kez çizilir; Asıl ve Suret'te aynı görüntü kullanılır, etiket PDF'e yazı olarak eklenir (dosya boyutu tek nüsha kadar kalır) */
   const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
   pdf.setProperties({ title: pdfName(m), subject: 'Optikoop Sözleşmesi' + (m.no ? ' – ' + m.no : ''), creator: 'OPTIKOOP SÖZLEŞME', keywords: (opts && opts.embed) ? 'OPK26DATA:' + kayitKodla(m) : (m.no || '') });
@@ -2511,8 +2510,7 @@ async function pdfIndir(copies, kaydet) {
   } finally { btns.forEach((b, i) => { b.disabled = false; b.textContent = old[i]; }); pdfBusy = false; }
 }
 $('pvPdf1').addEventListener('click', () => pdfIndir(1, !fromSaved));
-$('pvPdfAS').addEventListener('click', () => pdfIndir(2, !fromSaved));
-$('pvPrint1').addEventListener('click', () => yazdir(1));
+$('pvPdfAS').addEventListener('click', () => pdfIndir(3, !fromSaved));
 
 /* ============ Kayıtlar ============ */
 function updateKayitBadge() { const n = lsGet(LS_KAYIT, []).length; const kr = $('kayitRozet'); if (kr) { kr.textContent = n || ''; kr.classList.toggle('var', n > 0); } yedekBarGuncelle(); havuzBarGuncelle(); }
@@ -2887,7 +2885,7 @@ async function pdfGonder(copies, onceKayitli, sadeceSenet) {
   } finally { btns.forEach((b, i) => { b.disabled = false; b.textContent = old[i]; }); pdfBusy = false; }
 }
 $('pvGonder2').addEventListener('click', () => pdfGonder(1));
-$('pvGonderAS').addEventListener('click', () => pdfGonder(2));
+$('pvGonderAS').addEventListener('click', () => pdfGonder(3));
 $('pvSenetG').addEventListener('click', () => pdfGonder(2, false, 'odt'));
 $('pvSenetCbG').addEventListener('click', () => pdfGonder(2, false, 'cb'));
 
