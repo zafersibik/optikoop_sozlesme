@@ -551,7 +551,7 @@
 <style>
   header .logos { display: flex; align-items: center; gap: 12px; }
   header .logos .logo { height: 30px; width: auto; }
-  .sube-izgara { grid-template-columns: repeat(2, 1fr) !important; }
+  .sube-izgara { grid-template-columns: repeat(3, 1fr) !important; }
   .giris-logo { width: 230px !important; max-width: 80% !important; }
   .lg-koyu { display: none !important; }
   @media (prefers-color-scheme: dark) {
@@ -2970,7 +2970,7 @@ function ekhChange(t) {
    Şube listesi uygulamanın içinde sabittir (Ayarlar'dan değiştirilemez). Açılışta şube ve adın/soyadın ilk 2 harfi sorulur;
    her telefona kendiliğinden kısa bir cihaz kodu verilir. Numara: OPK26-SRK-AH.YI-T1-0001 */
 const LS_KULL = 'opk26_kullanici_v1', LS_SAYAC = 'opk26_sayac_v1', LS_CIHAZ = 'opk26_cihaz_v1';
-const SUBELER = [['Sirkeci', 'SRK'], ['Bakırköy', 'BKR'], ['Yönetici', 'MRK']];
+const SUBELER = [['Sirkeci', 'SRK'], ['Bakırköy', 'BKR'], ['Kadıköy', 'KDK'], ['Ankara', 'ANK'], ['İzmir', 'IZM'], ['Bursa', 'BRS'], ['Antalya', 'ANT'], ['Adana', 'ADN'], ['Kayseri', 'KYS'], ['Samsun', 'SMS'], ['Malatya', 'MLT'], ['Sakarya', 'SKR'], ['Yönetici', 'MRK']];
 const subeAd = kod => { const s = SUBELER.find(x => x[1] === kod); return s ? s[0] : kod; };
 function foldUp(s) { return String(s || '').replace(/[çÇ]/g, 'C').replace(/[ğĞ]/g, 'G').replace(/[ıİ]/g, 'I').replace(/[öÖ]/g, 'O').replace(/[şŞ]/g, 'S').replace(/[üÜ]/g, 'U').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 const harf2 = v => foldUp(v).replace(/[^A-Z]/g, '').slice(0, 2);
